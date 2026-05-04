@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kineticon SOP Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#F4F2EE;--surface:#FFFFFF;--ink:#1A1A18;--ink2:#4A4A45;--ink3:#9A9890;
+  --border:#E2DED6;--border2:#CCC9C0;
+  --teal:#0F6E56;--teal-l:#E1F5EE;--teal-m:#1D9E75;
+  --amber:#854F0B;--amber-l:#FEF3E2;--amber-m:#BA7517;
+  --purple:#3C3489;--purple-l:#EEEDFE;--purple-m:#534AB7;
+  --blue:#0C447C;--blue-l:#E6F1FB;--blue-m:#185FA5;
+  --coral:#712B13;--coral-l:#FAECE7;--coral-m:#993C1D;
+  --red:#791F1F;--red-l:#FCEBEB;--red-m:#A32D2D;
+  --sidebar-w:440px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column}
+
+/* ── TOPBAR ── */
+.topbar{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0;z-index:50}
+.tb-logo{display:flex;align-items:center;gap:10px}
+.tb-logo img{height:26px;width:auto;object-fit:contain}
+.tb-divider{width:1px;height:20px;background:var(--border)}
+.tb-title{font-size:13px;font-weight:500;color:var(--ink);letter-spacing:0.01em}
+.tb-count{margin-left:auto;font-size:11px;color:var(--ink3);letter-spacing:0.06em;text-transform:uppercase}
+.tb-search{margin-left:16px;position:relative}
+.tb-search input{background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:12px;padding:6px 12px 6px 30px;width:200px;outline:none;transition:all 0.2s}
+.tb-search input::placeholder{color:var(--ink3)}
+.tb-search input:focus{background:var(--surface);border-color:var(--border2)}
+.tb-search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);opacity:0.4}
+
+/* ── MAIN LAYOUT ── */
+.main{flex:1;display:flex;overflow:hidden;position:relative}
+
+/* ── MAP AREA ── */
+.map-area{flex:1;overflow-y:auto;overflow-x:hidden;padding:32px 32px 60px;transition:margin-right 0.35s cubic-bezier(0.4,0,0.2,1);position:relative}
+.map-area.shifted{margin-right:var(--sidebar-w)}
+
+/* ── PIPELINE HEADER ── */
+.pipeline-intro{margin-bottom:36px}
+.pipeline-intro h1{font-family:'DM Serif Display',serif;font-size:28px;font-weight:400;color:var(--ink);margin-bottom:6px;letter-spacing:-0.02em}
+.pipeline-intro p{font-size:13px;color:var(--ink3);line-height:1.6}
+.tool-filter{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px;align-items:center}
+.filter-label{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3);margin-right:4px;font-weight:500}
+.ftag{font-size:11px;padding:4px 10px;border-radius:100px;border:1px solid var(--border2);color:var(--ink3);background:var(--surface);cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.ftag:hover{border-color:var(--ink3);color:var(--ink2)}
+.ftag.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* ── PIPELINE ── */
+.pipeline{display:flex;flex-direction:column;gap:0}
+
+/* FLOW CONNECTOR */
+.flow-connector{display:flex;align-items:center;padding:0 0 0 28px;height:32px;position:relative}
+.flow-connector::before{content:'';position:absolute;left:33px;top:0;bottom:0;width:1px;background:var(--border2)}
+.flow-arrow{width:14px;height:14px;border-right:1.5px solid var(--border2);border-bottom:1.5px solid var(--border2);transform:rotate(45deg);margin-left:27px}
+
+/* CATEGORY BLOCK */
+.cat-block{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:all 0.2s}
+.cat-block.faded{opacity:0.35}
+.cat-head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border);position:relative}
+.cat-accent{position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:16px 0 0 0}
+.cat-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:8px}
+.cat-info h2{font-family:'DM Serif Display',serif;font-size:16px;font-weight:400;color:var(--ink);letter-spacing:-0.01em;line-height:1.2}
+.cat-info p{font-size:11px;color:var(--ink3);margin-top:2px}
+.cat-badge{margin-left:auto;font-size:10px;font-weight:500;padding:3px 9px;border-radius:100px;letter-spacing:0.04em}
+
+/* SOP CARDS INSIDE CATEGORY */
+.sop-row{display:grid;gap:1px;background:var(--border)}
+.sop-card{background:var(--surface);padding:14px 20px 14px 52px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all 0.15s;position:relative}
+.sop-card:hover{background:#F9F7F4}
+.sop-card.active{background:var(--bg)}
+.sop-card.hidden{display:none}
+.sop-card-num{position:absolute;left:22px;font-size:10px;color:var(--ink3);font-weight:500;letter-spacing:0.04em;width:20px;text-align:right}
+.sop-card-body{flex:1;min-width:0}
+.sop-card-name{font-size:13px;color:var(--ink);line-height:1.35;font-weight:400}
+.sop-card-tools{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
+.tool-chip{font-size:10px;padding:2px 7px;border-radius:100px;border:1px solid var(--border);color:var(--ink3);background:var(--bg);white-space:nowrap}
+.sop-card-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.has-slides{font-size:10px;font-weight:500;padding:3px 8px;border-radius:100px;background:#E1F5EE;color:#0F6E56;border:1px solid #9FE1CB}
+.sop-arrow-ico{width:18px;height:18px;border-radius:50%;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
+.sop-card:hover .sop-arrow-ico,.sop-card.active .sop-arrow-ico{background:var(--ink);border-color:var(--ink)}
+.sop-arrow-ico svg path{transition:stroke 0.2s}
+.sop-card:hover .sop-arrow-ico svg path,.sop-card.active .sop-arrow-ico svg path{stroke:#fff}
+
+/* ── SIDEBAR ── */
+.sidebar{position:fixed;top:52px;right:0;bottom:0;width:var(--sidebar-w);background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);z-index:40}
+.sidebar.open{transform:translateX(0)}
+
+.sb-head{padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sb-crumb{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.sb-crumb-cat{font-size:10px;font-weight:500;padding:2px 8px;border-radius:100px;letter-spacing:0.04em}
+.sb-crumb-sep{font-size:10px;color:var(--ink3)}
+.sb-close{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink3);font-size:14px;transition:all 0.15s;margin-left:auto;flex-shrink:0}
+.sb-close:hover{background:var(--bg);color:var(--ink)}
+.sb-head-row{display:flex;align-items:flex-start;gap:8px}
+.sb-title{font-family:'DM Serif Display',serif;font-size:17px;font-weight:400;color:var(--ink);line-height:1.25;letter-spacing:-0.01em;flex:1}
+.sb-tools{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+
+.sb-nav{display:flex;align-items:center;gap:0;border-bottom:1px solid var(--border);flex-shrink:0}
+.sb-nav-btn{flex:1;padding:10px;font-size:11px;color:var(--ink3);background:transparent;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.sb-nav-btn:hover{background:var(--bg);color:var(--ink)}
+.sb-nav-btn:disabled{opacity:0.25;cursor:default}
+.sb-nav-divider{width:1px;height:20px;background:var(--border)}
+.sb-nav-pos{font-size:11px;color:var(--ink3);padding:0 12px;flex-shrink:0}
+
+.sb-body{flex:1;overflow-y:auto;padding:20px}
+
+.sb-embed-wrap{background:var(--bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;position:relative}
+.sb-embed-placeholder{padding:48px 24px;text-align:center}
+.sb-embed-placeholder .play-ring{width:52px;height:52px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;background:var(--surface)}
+.sb-embed-placeholder h3{font-family:'DM Serif Display',serif;font-size:15px;font-weight:400;color:var(--ink);margin-bottom:6px}
+.sb-embed-placeholder p{font-size:12px;color:var(--ink3);line-height:1.6}
+.sb-embed-wrap iframe{width:100%;border:none;display:block;aspect-ratio:16/12;min-height:300px}
+.sb-expand-btn{position:absolute;top:10px;right:10px;background:rgba(255,255,255,0.9);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:10px;color:var(--ink2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;backdrop-filter:blur(4px)}
+.sb-expand-btn:hover{background:var(--surface)}
+
+.sb-desc{background:var(--bg);border-radius:10px;padding:14px 16px;margin-bottom:16px}
+.sb-desc-label{font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px}
+.sb-desc-text{font-size:12px;color:var(--ink2);line-height:1.7}
+
+
+
+
+
+
+
+
+
+/* ── FULLSCREEN OVERLAY ── */
+.fs-overlay{display:none;position:fixed;inset:0;z-index:600;background:rgba(20,20,18,0.92);flex-direction:column}
+.fs-overlay.open{display:flex}
+.fs-top{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;flex-shrink:0}
+.fs-title{font-family:'DM Serif Display',serif;font-size:16px;color:#fff;font-weight:400}
+.fs-close{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:6px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.fs-close:hover{background:rgba(255,255,255,0.18)}
+.fs-body{flex:1;padding:0 20px 20px;display:flex;flex-direction:column}
+.fs-body iframe{flex:1;border:none;border-radius:10px;width:100%;min-height:0}
+
+/* ── NO RESULTS ── */
+.no-results{text-align:center;padding:48px 24px;color:var(--ink3);font-size:13px}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* ── ANIMATIONS ── */
+@keyframes slideInRight{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+.cat-block{animation:slideInRight 0.3s ease both}
+.cat-block:nth-child(1){animation-delay:0.05s}
+.cat-block:nth-child(2){animation-delay:0.1s}
+.cat-block:nth-child(3){animation-delay:0.15s}
+.cat-block:nth-child(4){animation-delay:0.2s}
+.cat-block:nth-child(5){animation-delay:0.25s}
+.cat-block:nth-child(6){animation-delay:0.3s}
+
+.view-toggle{display:flex;gap:4px;margin-left:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:3px}
+.vt-btn{font-size:11px;padding:5px 12px;border-radius:6px;border:none;background:transparent;color:var(--ink3);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:5px;transition:all 0.18s;white-space:nowrap}
+.vt-btn.active{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+
+#mapView{display:block}
+#abstractView{display:none}
+.abs-wrap{position:relative;padding:24px}
+.abs-svg{width:100%;height:100%}
+.abs-node-g{cursor:pointer}
+.abs-node-g:hover .abs-box{filter:brightness(0.97)}
+.abs-sop-item{cursor:pointer}
+.abs-sop-item:hover .abs-sop-bg{opacity:1}
+.abs-tip{pointer-events:none;transition:opacity 0.15s}
+
+.embed-modal{display:none;position:fixed;inset:0;z-index:500;background:rgba(15,15,13,0.82);align-items:center;justify-content:center;padding:24px}
+.embed-modal.open{display:flex}
+.embed-modal-box{background:var(--surface);border-radius:18px;overflow:hidden;width:min(780px,92vw);box-shadow:0 32px 80px rgba(0,0,0,0.35);display:flex;flex-direction:column;max-height:92vh}
+.embed-modal-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.embed-modal-cat{font-size:10px;font-weight:500;padding:2px 8px;border-radius:100px;border:1px solid;letter-spacing:0.04em}
+.embed-modal-title{font-family:'DM Serif Display',serif;font-size:15px;color:var(--ink);font-weight:400;flex:1;line-height:1.3}
+.embed-modal-close{width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:13px;color:var(--ink3);display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0}
+.embed-modal-close:hover{background:var(--bg)}
+.embed-modal-body{flex:1;padding:16px;overflow:hidden;display:flex;flex-direction:column;min-height:0}
+.embed-modal-body iframe{width:100%;flex:1;border:none;border-radius:10px;min-height:480px}
+
+#absSvg circle[style*="cursor:pointer"]{
+  transition: filter 0.18s ease, transform 0.18s ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+#absSvg circle[style*="cursor:pointer"]:hover{
+  filter: drop-shadow(0 0 5px currentColor) drop-shadow(0 0 2px currentColor);
+  transform: scale(1.35);
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-logo">
+    <img src="data:image/jpeg;base64,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" alt="Kineticon Group"/>
+  </div>
+  <div class="tb-divider"></div>
+  <div class="tb-title">SOP Reference Hub</div>
+  <div class="tb-count">15 procedures</div>
+  <div class="tb-search">
+    <svg class="tb-search-icon" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#9A9890" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10 10l3 3"/></svg>
+    <input type="text" id="searchInput" placeholder="Search procedures..." oninput="filterAll()"/>
+  </div>
+
+  <div class="view-toggle">
+    <button class="vt-btn active" id="listToggle" onclick="setView('list')">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><line x1="1" y1="3" x2="11" y2="3"/><line x1="1" y1="6" x2="11" y2="6"/><line x1="1" y1="9" x2="11" y2="9"/></svg>
+      Pipeline
+    </button>
+    <button class="vt-btn" id="mapToggle" onclick="setView('map')">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><circle cx="6" cy="6" r="2"/><circle cx="2" cy="2" r="1.2"/><circle cx="10" cy="2" r="1.2"/><circle cx="2" cy="10" r="1.2"/><circle cx="10" cy="10" r="1.2"/><line x1="3" y1="3" x2="4.5" y2="4.5"/><line x1="9" y1="3" x2="7.5" y2="4.5"/><line x1="3" y1="9" x2="4.5" y2="7.5"/><line x1="9" y1="9" x2="7.5" y2="7.5"/></svg>
+      Map
+    </button>
+  </div>
+</div>
+
+
+<!-- EMBED MODAL -->
+<div class="embed-modal" id="embedModal">
+  <div class="embed-modal-box">
+    <div class="embed-modal-head">
+      <span class="embed-modal-cat" id="emCat"></span>
+      <div class="embed-modal-title" id="emTitle"></div>
+      <button onclick="expandEmbedFullscreen()" style="background:transparent;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:11px;font-family:'DM Sans',sans-serif;color:var(--ink2);cursor:pointer;margin-right:6px;transition:all 0.15s" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='transparent'">⤢ Fullscreen</button>
+      <button class="embed-modal-close" onclick="closeEmbedModal()">✕</button>
+    </div>
+    <div class="embed-modal-body">
+      <iframe id="emFrame" src="" allow="fullscreen"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- FULLSCREEN OVERLAY -->
+<div class="fs-overlay" id="fsOverlay">
+  <div class="fs-top">
+    <div class="fs-title" id="fsTitle"></div>
+    <button class="fs-close" onclick="closeFull()">✕ Exit fullscreen</button>
+  </div>
+  <div class="fs-body">
+    <iframe id="fsFrame" src="" allow="fullscreen"></iframe>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="map-area" id="mapArea"><div id="mapView">
+
+    <div class="pipeline-intro">
+      <h1>Operations map</h1>
+      <p>Select any procedure to open its step-by-step guide. Filter by the tool you're currently using.</p>
+      <div class="tool-filter">
+        <span class="filter-label">I'm using</span>
+        <button class="ftag active" onclick="filterTool(this,'all')">Everything</button>
+        <button class="ftag" onclick="filterTool(this,'simpro')">Simpro</button>
+        <button class="ftag" onclick="filterTool(this,'outlook')">Outlook</button>
+        <button class="ftag" onclick="filterTool(this,'foxit')">Foxit PDF</button>
+        <button class="ftag" onclick="filterTool(this,'cubit')">Cubit X64</button>
+        <button class="ftag" onclick="filterTool(this,'word')">Word</button>
+        <button class="ftag" onclick="filterTool(this,'jsea')">JSEAsy</button>
+      </div>
+    </div>
+
+    <div class="pipeline" id="pipeline">
+
+      <!-- 1. INVOICING & FINANCE -->
+      <div class="cat-block" data-cat="invoicing">
+        <div class="cat-head">
+          <div class="cat-accent" style="background:var(--teal-m)"></div>
+          <div class="cat-icon" style="background:var(--teal-l)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F6E56" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+          </div>
+          <div class="cat-info">
+            <h2>Invoicing &amp; Finance</h2>
+            <p>Processing, approving and filing all invoice types</p>
+          </div>
+          <div class="cat-badge" style="background:var(--teal-l);color:var(--teal)">4 SOPs</div>
+        </div>
+        <div class="sop-row">
+          <div class="sop-card" data-tools="simpro outlook" data-cat="invoicing" data-color="var(--teal-m)" data-color-l="var(--teal-l)" data-idx="0" onclick="openSOP(this)">
+            <div class="sop-card-num">01</div>
+            <div class="sop-card-body">
+              <div class="sop-card-name">Contractor invoice processing &amp; status update</div>
+              <div class="sop-card-tools"><span class="tool-chip">Simpro</span><span class="tool-chip">Outlook</span></div>
+            </div>
+            <div class="sop-card-right">
+              <span class="has-slides">Slideshow</span>
+              <div class="sop-arrow-ico"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="#9A9890" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+          </div>
+          <div class="sop-card" data-tools="simpro" data-cat="invoicing" data-color="var(--teal-m)" data-color-l="var(--teal-l)" data-idx="1" onclick="openSOP(this)">
+            <div class="sop-card-num">02</div>
+            <div class="sop-card-body">
+              <div class="sop-card-name">Invoicing a completed work order</div>
+              <div class="sop-card-tools"><span class="tool-chip">Simpro</span></div>
+            </div>
+            <div class="sop-card-right">
+              <span class="has-slides">Slideshow</span>
+              <div class="sop-arrow-ico"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="#9A9890" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+          </div>
+          <div class="sop-card" data-tools="foxit outlook" data-cat="invoicing" data-color="var(--teal-m)" data-color-l="var(--teal-l)" data-idx="2" onclick="openSOP(this)">
+            <div class="sop-card-num">03</div>
+            <div class="sop-card-body">
+              <div class="sop-card-name">Adding an approval comment to a contractor invoice</div>
+              <div class="sop-card-tools"><span class="tool-chip">Foxit PDF</span><span class="tool-chip">Outlook</span></div>
+            </div>
+            <div class="sop-card-right">
+              <span class="has-slides">Slideshow</span>
+              <div class="sop-arrow-ico"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="#9A9890" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+          </div>
+          <div class="sop-card" data-tools="foxit outlook simpro" data-cat="invoicing" data-color="var(--teal-m)" data-color-l="var(--teal-l)" data-idx="3" onclick="openSOP(this)">
+            <div class="sop-card-num">04</div>
+            <div class="sop-card-body">
+              <div class="sop-card-name">Processing &amp; filing a Bunnings invoice</div>
+              <div class="sop-card-tools"><span class="tool-chip">Outlook</span><span class="tool-chip">Foxit PDF</span><span class="tool-chip">Simpro</span></div>
+            </div>
+            <div class="sop-card-right">
+              <span class="has-slides">Slideshow</span>
+              <div class="sop-arrow-ico"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="#9A9890" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-connector"><div class="flow-arrow"></div></div>
+
+      <!-- 2. PROCUREMENT -->
+      <div class="cat-block" data-cat="procurement">
+        <div class="cat-head">
+          <div class="cat-accent" style="background:var(--amber-m)"></div>
+          <div class="cat-icon" style="background:var(--amber-l)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#854F0B" stroke-width="1.5" stroke-linecap="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          </div>
+          <div class="cat-info">
+            <h2>Procurement &amp; Purchasing</h2>
+            <p>Purchase orders and overhead invoice management</p>
+          </div>
+          <div class="cat-badge" style="background:var(--amber-l);color:var(--amber)">2 SOPs</div>
+        </div>
+        <div class="sop-row">
+          <div class="sop-card" data-tools="simpro" data-cat="procurement" data-color="var(--amber-m)" data-color-l="var(--amber-l)" data-idx="0" onclick="openSOP(this)">
+            <div class="sop-card-num">01</div>
+            <div class="sop-card-body">
+              <div class="sop-card-name">Creating a Bunnings purchase order for job stock</div>
+              <div class="sop-card-tools"><span class="tool-chip">Simpro</span></div>
+            </div>
+            <div class="sop-card-right">
+              <span class="has-slides">Slideshow</span>
+              <div class="sop-arrow-ico"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="#9A9890" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+          </div>
+          <div class="sop-card" data-tools="outlook" data-cat="procurement" data-color="var(--amber-m)" data-color-l="var(--amber-l)" data-idx="1" onclick="openSOP(this)">
+            <div class="sop-card-num">02</div>
+            <div class="sop-card-body">
+              <div class="sop-card-name">Processing overhead invoices from email</div>
+              <div class="sop-card-tools"><span class="tool-chip">Outlook</span><span class="tool-chip">OneDrive</span></div>
+            </div>
+            <div class="sop-card-right">
+              <span class="has-slides">Slideshow</span>
+              <div class="sop-arrow-ico"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="#9A9890" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-connector"><div class="flow-arrow"></div></div>
+
+      <!-- 3. TENDERING -->
+      <div class="cat-block" data-cat="tendering">
+        <div class="cat-head">
+          <div class="cat-accent" style="background:var(--purple-m)"></div>
+          <div class="cat-icon" style="background:var(--purple-l)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3C3489" stroke-width="1.5" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          </div>
+          <div class="cat-info">
+            <h2>Tendering &amp; Estimating</h2>
+            <p>Returnable schedules, project files and PDF docs</p>
+          </div>
+          <div class="cat-badge" style="background:var(--purple-l);color:var(--purple)">3 SOPs</div>
+        </div>
+        <div class="sop-row">
+          <div class="sop-card" data-tools="foxit" data-cat="tendering" data-color="var(--purple-m)" data-color-l="var(--purple-l)" data-idx="0" onclick="openSOP(this)">
+            <div class="sop-card-num">01</div>
+            <div class="sop-card-body">
+              <div class="sop-card-name">Completing a tender returnable schedule</div>
+              <div class="sop-card-tools"><span class="tool-chip">Foxit PDF</span></div>
+            </div>
+            <div class="sop-card-right">
+              <span class="has-slides">Slideshow</span>
+              <div class="sop-arrow-ico"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="#9A9890" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+          </div>
+          <div class="sop-card" data-tools="cubit" data-cat="tendering" data-color="var(--purple-m)" data-color-l="var(--purple-l)" data-idx="1" onclick="openSOP(this)">
+            <div class="sop-card-num">02</div>
+            <div class="sop-card-body">
+              <div class="sop-card-name">Accessing demolition project files for Kineticon Group</div>
+              <div class="sop-card-tools"><span class="tool-chip">Cubit X64</span></div>
+            </div>
+            <div class="sop-card-right">
+              <span class="has-slides">Slideshow</span>
+              <div class="sop-arrow-ico"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="#9A9890" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+          </div>
+          <div class="sop-card" data-tools="cubit" data-cat="tendering" data-color="var(--purple-m)" data-color-l="var(--purple-l)" data-idx="2" onclick="openSOP(this)">
+            <div class="sop-card-num">03</div>
+            <div class="sop-card-body">
+              <div class="sop-card-name">Navigating &amp; accessing project PDF documents</div>
+              <div class="sop-card-tools"><span class="tool-chip">Cubit X64</span></div>
+            </div>
+            <div class="sop-card-right">
+              <span class="has-slides">Slideshow</span>
+              <div class="sop-arrow-ico"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="#9A9890" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-connector"><div class="flow-arrow"></div></div>
+
+      <!-- 4. JOB MANAGEMENT -->
+      <div class="cat-block" data-cat="jobmgmt">
+        <div class="cat-head">
+          <div class="cat-accent" style="background:var(--blue-m)"></div>
+          <div class="cat-icon" style="background:var(--blue-l)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0C447C" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          </div>
+          <div class="cat-info">
+            <h2>Job Management</h2>
+            <p>Notes, documentation, tracking and attachments</p>
+          </div>
+          <div class="cat-badge" style="background:var(--blue-l);color:var(--blue)">4 SOPs</div>
+        </div>
+        <div class="sop-row">
+          <div class="sop-card" data-tools="word simpro" data-cat="jobmgmt" data-color="var(--blue-m)" data-color-l="var(--blue-l)" data-idx="0" onclick="openSOP(this)">
+            <div class="sop-card-num">01</div>
+            <div class="sop-card-body">
+              <div class="sop-card-name">Updating job notes &amp; documentation in Simpro</div>
+              <div class="sop-card-tools"><span class="tool-chip">Simpro</span><span class="tool-chip">Word</span></div>
+            </div>
+            <div class="sop-card-right">
+              <span class="has-slides">Slideshow</span>
+              <div class="sop-arrow-ico"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="#9A9890" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+          </div>
+          <div class="sop-card" data-tools="outlook foxit word" data-cat="jobmgmt" data-color="var(--blue-m)" data-color-l="var(--blue-l)" data-idx="1" onclick="openSOP(this)">
+            <div class="sop-card-num">02</div>
+            <div class="sop-card-body">
+              <div class="sop-card-name">Managing job documentation &amp; progress tracking</div>
+              <div class="sop-card-tools"><span class="tool-chip">Outlook</span><span class="tool-chip">Foxit PDF</span><span class="tool-chip">Word</span></div>
+            </div>
+            <div class="sop-card-right">
+              <span class="has-slides">Slideshow</span>
+              <div class="sop-arrow-ico"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="#9A9890" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+          </div>
+          <div class="sop-card" data-tools="simpro" data-cat="jobmgmt" data-color="var(--blue-m)" data-color-l="var(--blue-l)" data-idx="2" onclick="openSOP(this)">
+            <div class="sop-card-num">03</div>
+            <div class="sop-card-body">
+              <div class="sop-card-name">Exporting &amp; organising job attachments from Simpro</div>
+              <div class="sop-card-tools"><span class="tool-chip">Simpro</span></div>
+            </div>
+            <div class="sop-card-right">
+              <span class="has-slides">Slideshow</span>
+              <div class="sop-arrow-ico"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="#9A9890" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+          </div>
+          <div class="sop-card" data-tools="outlook simpro" data-cat="jobmgmt" data-color="var(--blue-m)" data-color-l="var(--blue-l)" data-idx="3" onclick="openSOP(this)">
+            <div class="sop-card-num">04</div>
+            <div class="sop-card-body">
+              <div class="sop-card-name">Managing project quotes &amp; documents in Kineticon</div>
+              <div class="sop-card-tools"><span class="tool-chip">Outlook</span><span class="tool-chip">Simpro</span></div>
+            </div>
+            <div class="sop-card-right">
+              <span class="has-slides">Slideshow</span>
+              <div class="sop-arrow-ico"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="#9A9890" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-connector"><div class="flow-arrow"></div></div>
+
+      <!-- 5 & 6 SIDE BY SIDE -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+
+        <div class="cat-block" data-cat="client">
+          <div class="cat-head">
+            <div class="cat-accent" style="background:var(--coral-m)"></div>
+            <div class="cat-icon" style="background:var(--coral-l)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#712B13" stroke-width="1.5" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            </div>
+            <div class="cat-info">
+              <h2>Client &amp; Support</h2>
+              <p>Tickets and quoting</p>
+            </div>
+            <div class="cat-badge" style="background:var(--coral-l);color:var(--coral)">1 SOP</div>
+          </div>
+          <div class="sop-row">
+            <div class="sop-card" data-tools="outlook" data-cat="client" data-color="var(--coral-m)" data-color-l="var(--coral-l)" data-idx="0" onclick="openSOP(this)">
+              <div class="sop-card-num">01</div>
+              <div class="sop-card-body">
+                <div class="sop-card-name">Processing &amp; quoting a client support ticket</div>
+                <div class="sop-card-tools"><span class="tool-chip">Outlook</span></div>
+              </div>
+              <div class="sop-card-right">
+                <span class="has-slides">Slideshow</span>
+                <div class="sop-arrow-ico"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="#9A9890" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cat-block" data-cat="safety">
+          <div class="cat-head">
+            <div class="cat-accent" style="background:var(--red-m)"></div>
+            <div class="cat-icon" style="background:var(--red-l)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#791F1F" stroke-width="1.5" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div class="cat-info">
+              <h2>Safety &amp; Compliance</h2>
+              <p>Required before every field job</p>
+            </div>
+            <div class="cat-badge" style="background:var(--red-l);color:var(--red)">1 SOP</div>
+          </div>
+          <div class="sop-row">
+            <div class="sop-card" data-tools="jsea" data-cat="safety" data-color="var(--red-m)" data-color-l="var(--red-l)" data-idx="0" onclick="openSOP(this)">
+              <div class="sop-card-num">01</div>
+              <div class="sop-card-body">
+                <div class="sop-card-name">Completing a JSEA — JSEAsy</div>
+                <div class="sop-card-tools"><span class="tool-chip">JSEAsy</span></div>
+              </div>
+              <div class="sop-card-right">
+                <span class="has-slides">Slideshow</span>
+                <div class="sop-arrow-ico"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="#9A9890" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+  <div id="abstractView" style="display:none;flex-direction:column;padding:20px 28px 28px;gap:14px;overflow:hidden">
+
+    <!-- Legend -->
+    <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center;flex-shrink:0">
+      <span style="font-size:10px;letter-spacing:0.09em;text-transform:uppercase;color:var(--ink3);font-weight:500">Legend</span>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink2)"><div style="width:28px;height:12px;border-radius:4px;background:#E1F5EE;border:1.5px solid #1D9E75;flex-shrink:0"></div>Category — click to open first SOP</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink2)"><div style="width:12px;height:12px;border-radius:50%;background:#1A1A18;flex-shrink:0"></div>Individual SOP — hover for name, click to open</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink2)"><div style="width:28px;border-top:1.5px dashed #CCC9C0;flex-shrink:0"></div>Operational flow</div>
+    </div>
+
+    <!-- Full-size map -->
+    <div style="flex:1;min-height:0;background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;position:relative;display:flex;flex-direction:column" id="mapCanvas">
+      <svg id="absSvg" viewBox="0 0 900 560" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block;flex:1">
+  <defs>
+    <marker id="mArr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M1 2L8 5L1 8" fill="none" stroke="#B5B2AA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse">
+      <path d="M 36 0 L 0 0 0 36" fill="none" stroke="#EDEAE4" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+
+  <rect width="900" height="560" fill="url(#grid)"/>
+
+  <!-- ══ FLOW LINES ══ -->
+
+  <!-- Tendering → Job Management
+       Tendering bottom-right corner: x=280, y=198
+       Job Mgmt left edge mid: x=310, y=268  -->
+  <path d="M 170 198 L 170 268 L 310 268" fill="none" stroke="#C5C2BA" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#mArr)"/>
+
+  <!-- Client & Support → Job Management
+       Client bottom-centre: x=730, y=148
+       Job Mgmt right edge mid: x=610, y=268  -->
+  <path d="M 730 148 L 730 268 L 610 268" fill="none" stroke="#C5C2BA" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#mArr)"/>
+
+  <!-- Job Management → Invoicing & Finance
+       Job Mgmt bottom-left: x=370, y=340
+       Invoicing top-centre: x=185, y=368  -->
+  <path d="M 370 340 L 370 354 L 185 354 L 185 368" fill="none" stroke="#C5C2BA" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#mArr)"/>
+
+  <!-- Job Management → Procurement
+       Job Mgmt bottom-centre: x=460, y=340
+       Procurement top-centre: x=460, y=368  -->
+  <line x1="460" y1="340" x2="460" y2="368" stroke="#C5C2BA" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#mArr)"/>
+
+  <!-- Job Management → Safety
+       Job Mgmt bottom-right: x=560, y=340
+       Safety top-centre: x=730, y=368  -->
+  <path d="M 560 340 L 560 354 L 730 354 L 730 368" fill="none" stroke="#C5C2BA" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#mArr)"/>
+
+  <!-- ══ FLOW LABELS — placed ON the lines, clear of nodes ══ -->
+
+  <!-- "quote → job" sits on horizontal segment y=268, midpoint x=265 -->
+  <rect x="192" y="259" width="72" height="16" rx="4" fill="var(--surface,#fff)" opacity="0.85"/>
+  <text x="228" y="270" font-family="DM Sans,sans-serif" font-size="9" fill="#B5B2AA" text-anchor="middle">quote → job</text>
+
+  <!-- "ticket → job" sits on horizontal segment y=268, midpoint x=670 -->
+  <rect x="624" y="259" width="68" height="16" rx="4" fill="var(--surface,#fff)" opacity="0.85"/>
+  <text x="658" y="270" font-family="DM Sans,sans-serif" font-size="9" fill="#B5B2AA" text-anchor="middle">ticket → job</text>
+
+  <!-- "job done → invoice" on horizontal segment y=354, midpoint x=278 -->
+  <rect x="215" y="345" width="100" height="16" rx="4" fill="var(--surface,#fff)" opacity="0.85"/>
+  <text x="265" y="356" font-family="DM Sans,sans-serif" font-size="9" fill="#B5B2AA" text-anchor="middle">job done → invoice</text>
+
+  <!-- "materials" on vertical segment x=460, midpoint y=354 -->
+  <rect x="420" y="345" width="62" height="16" rx="4" fill="var(--surface,#fff)" opacity="0.85"/>
+  <text x="451" y="356" font-family="DM Sans,sans-serif" font-size="9" fill="#B5B2AA" text-anchor="middle">materials</text>
+
+  <!-- "required before site" on horizontal segment y=354, midpoint x=645 -->
+  <rect x="578" y="345" width="110" height="16" rx="4" fill="var(--surface,#fff)" opacity="0.85"/>
+  <text x="633" y="356" font-family="DM Sans,sans-serif" font-size="9" fill="#B5B2AA" text-anchor="middle">required before site</text>
+
+  <!-- ══════════════════════════════════════
+       TENDERING & ESTIMATING
+       x=20 y=20 w=260 h=178
+  ══════════════════════════════════════ -->
+  <rect x="20" y="20" width="300" height="178" rx="14" fill="#EEEDFE" stroke="#534AB7" stroke-width="1.5" style="cursor:pointer" onclick="absNodeClick('tendering')"/>
+  
+  <rect x="40" y="36" width="52" height="17" rx="8" fill="#534AB7" pointer-events="none"/>
+  <text x="66" y="48" font-family="DM Sans,sans-serif" font-size="9" fill="white" text-anchor="middle" dominant-baseline="central" pointer-events="none">3 SOPs</text>
+  <text x="40" y="84" font-family="DM Serif Display,serif" font-size="17" fill="#26215C" pointer-events="none">Tendering &amp;</text>
+  <text x="40" y="106" font-family="DM Serif Display,serif" font-size="17" fill="#26215C" pointer-events="none">Estimating</text>
+  <text x="40" y="128" font-family="DM Sans,sans-serif" font-size="10" fill="#534AB7" pointer-events="none">Foxit PDF · Cubit X64</text>
+  <text x="40" y="146" font-family="DM Sans,sans-serif" font-size="10" fill="#534AB7" opacity="0.65" pointer-events="none">Quotes, schedules &amp; project files</text>
+  <circle cx="40"  cy="172" r="8" fill="#534AB7" style="cursor:pointer" onclick="event.stopPropagation();absDotOpen('tendering',0)"><title>Completing a tender returnable schedule</title></circle>
+  <circle cx="68"  cy="172" r="8" fill="#534AB7" style="cursor:pointer" onclick="event.stopPropagation();absDotOpen('tendering',1)"><title>Accessing demolition project files — Cubit X64</title></circle>
+  <circle cx="96"  cy="172" r="8" fill="#534AB7" style="cursor:pointer" onclick="event.stopPropagation();absDotOpen('tendering',2)"><title>Navigating &amp; accessing project PDF documents</title></circle>
+  <text x="40"  y="175" font-family="DM Sans,sans-serif" font-size="10" fill="white" text-anchor="middle" pointer-events="none">1</text>
+  <text x="68"  y="175" font-family="DM Sans,sans-serif" font-size="10" fill="white" text-anchor="middle" pointer-events="none">2</text>
+  <text x="96"  y="175" font-family="DM Sans,sans-serif" font-size="10" fill="white" text-anchor="middle" pointer-events="none">3</text>
+
+  <!-- ══════════════════════════════════════
+       CLIENT & SUPPORT
+       x=620 y=20 w=260 h=128
+  ══════════════════════════════════════ -->
+  <rect x="620" y="20" width="260" height="128" rx="14" fill="#FAECE7" stroke="#993C1D" stroke-width="1.5" style="cursor:pointer" onclick="absNodeClick('client')"/>
+  
+  <rect x="640" y="36" width="52" height="17" rx="8" fill="#993C1D" pointer-events="none"/>
+  <text x="666" y="48" font-family="DM Sans,sans-serif" font-size="9" fill="white" text-anchor="middle" dominant-baseline="central" pointer-events="none">1 SOP</text>
+  <text x="640" y="86" font-family="DM Serif Display,serif" font-size="17" fill="#4A1B0C" pointer-events="none">Client &amp; Support</text>
+  <text x="640" y="106" font-family="DM Sans,sans-serif" font-size="10" fill="#993C1D" pointer-events="none">Outlook · Simpro</text>
+  <text x="640" y="122" font-family="DM Sans,sans-serif" font-size="10" fill="#993C1D" opacity="0.65" pointer-events="none">Receive &amp; quote service requests</text>
+  <circle cx="640" cy="136" r="8" fill="#993C1D" style="cursor:pointer" onclick="event.stopPropagation();absDotOpen('client',0)"><title>Processing &amp; quoting a client support ticket</title></circle>
+  <text x="640" y="139" font-family="DM Sans,sans-serif" font-size="10" fill="white" text-anchor="middle" pointer-events="none">1</text>
+
+  <!-- ══════════════════════════════════════
+       JOB MANAGEMENT — CENTRE HUB
+       x=310 y=210 w=300 h=130
+  ══════════════════════════════════════ -->
+  <rect x="302" y="202" width="316" height="146" rx="18" fill="none" stroke="#185FA5" stroke-width="0.5" opacity="0.2"/>
+  <rect x="310" y="210" width="300" height="130" rx="14" fill="#E6F1FB" stroke="#185FA5" stroke-width="2" style="cursor:pointer" onclick="absNodeClick('jobmgmt')"/>
+  
+  <rect x="330" y="224" width="68" height="17" rx="8" fill="#185FA5" pointer-events="none"/>
+  <text x="364" y="236" font-family="DM Sans,sans-serif" font-size="9" fill="white" text-anchor="middle" dominant-baseline="central" pointer-events="none">4 SOPs</text>
+  <text x="330" y="270" font-family="DM Serif Display,serif" font-size="18" fill="#042C53" pointer-events="none">Job Management</text>
+  <text x="330" y="290" font-family="DM Sans,sans-serif" font-size="10" fill="#185FA5" pointer-events="none">Simpro · Outlook · Foxit · Word</text>
+  <text x="330" y="308" font-family="DM Sans,sans-serif" font-size="10" fill="#185FA5" opacity="0.65" pointer-events="none">Notes, tracking, attachments &amp; quotes</text>
+  <circle cx="330" cy="328" r="8" fill="#185FA5" style="cursor:pointer" onclick="event.stopPropagation();absDotOpen('jobmgmt',0)"><title>Updating job notes &amp; documentation in Simpro</title></circle>
+  <circle cx="358" cy="328" r="8" fill="#185FA5" style="cursor:pointer" onclick="event.stopPropagation();absDotOpen('jobmgmt',1)"><title>Managing job documentation &amp; progress tracking</title></circle>
+  <circle cx="386" cy="328" r="8" fill="#185FA5" style="cursor:pointer" onclick="event.stopPropagation();absDotOpen('jobmgmt',2)"><title>Exporting &amp; organising job attachments from Simpro</title></circle>
+  <circle cx="414" cy="328" r="8" fill="#185FA5" style="cursor:pointer" onclick="event.stopPropagation();absDotOpen('jobmgmt',3)"><title>Managing project quotes &amp; documents in Kineticon</title></circle>
+  <text x="330" y="331" font-family="DM Sans,sans-serif" font-size="10" fill="white" text-anchor="middle" pointer-events="none">1</text>
+  <text x="358" y="331" font-family="DM Sans,sans-serif" font-size="10" fill="white" text-anchor="middle" pointer-events="none">2</text>
+  <text x="386" y="331" font-family="DM Sans,sans-serif" font-size="10" fill="white" text-anchor="middle" pointer-events="none">3</text>
+  <text x="414" y="331" font-family="DM Sans,sans-serif" font-size="10" fill="white" text-anchor="middle" pointer-events="none">4</text>
+
+  <!-- ══════════════════════════════════════
+       INVOICING & FINANCE
+       x=20 y=368 w=270 h=172
+  ══════════════════════════════════════ -->
+  <rect x="20" y="368" width="270" height="172" rx="14" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5" style="cursor:pointer" onclick="absNodeClick('invoicing')"/>
+  
+  <rect x="40" y="384" width="52" height="17" rx="8" fill="#1D9E75" pointer-events="none"/>
+  <text x="66" y="396" font-family="DM Sans,sans-serif" font-size="9" fill="white" text-anchor="middle" dominant-baseline="central" pointer-events="none">4 SOPs</text>
+  <text x="40" y="432" font-family="DM Serif Display,serif" font-size="17" fill="#085041" pointer-events="none">Invoicing &amp; Finance</text>
+  <text x="40" y="452" font-family="DM Sans,sans-serif" font-size="10" fill="#1D9E75" pointer-events="none">Simpro · Foxit PDF · Outlook</text>
+  <text x="40" y="470" font-family="DM Sans,sans-serif" font-size="10" fill="#1D9E75" opacity="0.65" pointer-events="none">Contractor, work order &amp; overhead</text>
+  <circle cx="40"  cy="510" r="8" fill="#1D9E75" style="cursor:pointer" onclick="event.stopPropagation();absDotOpen('invoicing',0)"><title>Contractor invoice processing &amp; status update</title></circle>
+  <circle cx="68"  cy="510" r="8" fill="#1D9E75" style="cursor:pointer" onclick="event.stopPropagation();absDotOpen('invoicing',1)"><title>Invoicing a completed work order</title></circle>
+  <circle cx="96"  cy="510" r="8" fill="#1D9E75" style="cursor:pointer" onclick="event.stopPropagation();absDotOpen('invoicing',2)"><title>Adding an approval comment to a contractor invoice</title></circle>
+  <circle cx="124" cy="510" r="8" fill="#1D9E75" style="cursor:pointer" onclick="event.stopPropagation();absDotOpen('invoicing',3)"><title>Processing &amp; filing a Bunnings invoice</title></circle>
+  <text x="40"  y="513" font-family="DM Sans,sans-serif" font-size="10" fill="white" text-anchor="middle" pointer-events="none">1</text>
+  <text x="68"  y="513" font-family="DM Sans,sans-serif" font-size="10" fill="white" text-anchor="middle" pointer-events="none">2</text>
+  <text x="96"  y="513" font-family="DM Sans,sans-serif" font-size="10" fill="white" text-anchor="middle" pointer-events="none">3</text>
+  <text x="124" y="513" font-family="DM Sans,sans-serif" font-size="10" fill="white" text-anchor="middle" pointer-events="none">4</text>
+
+  <!-- ══════════════════════════════════════
+       PROCUREMENT
+       x=320 y=368 w=240 h=172
+  ══════════════════════════════════════ -->
+  <rect x="320" y="368" width="240" height="172" rx="14" fill="#FEF3E2" stroke="#BA7517" stroke-width="1.5" style="cursor:pointer" onclick="absNodeClick('procurement')"/>
+  
+  <rect x="340" y="384" width="52" height="17" rx="8" fill="#BA7517" pointer-events="none"/>
+  <text x="366" y="396" font-family="DM Sans,sans-serif" font-size="9" fill="white" text-anchor="middle" dominant-baseline="central" pointer-events="none">2 SOPs</text>
+  <text x="340" y="432" font-family="DM Serif Display,serif" font-size="17" fill="#633806" pointer-events="none">Procurement</text>
+  <text x="340" y="452" font-family="DM Sans,sans-serif" font-size="10" fill="#BA7517" pointer-events="none">Simpro · Outlook · OneDrive</text>
+  <text x="340" y="470" font-family="DM Sans,sans-serif" font-size="10" fill="#BA7517" opacity="0.65" pointer-events="none">Purchase orders &amp; overhead costs</text>
+  <circle cx="340" cy="510" r="8" fill="#BA7517" style="cursor:pointer" onclick="event.stopPropagation();absDotOpen('procurement',0)"><title>Creating a Bunnings purchase order for job stock</title></circle>
+  <circle cx="368" cy="510" r="8" fill="#BA7517" style="cursor:pointer" onclick="event.stopPropagation();absDotOpen('procurement',1)"><title>Processing overhead invoices from email</title></circle>
+  <text x="340" y="513" font-family="DM Sans,sans-serif" font-size="10" fill="white" text-anchor="middle" pointer-events="none">1</text>
+  <text x="368" y="513" font-family="DM Sans,sans-serif" font-size="10" fill="white" text-anchor="middle" pointer-events="none">2</text>
+
+  <!-- ══════════════════════════════════════
+       SAFETY & COMPLIANCE
+       x=590 y=368 w=290 h=172
+  ══════════════════════════════════════ -->
+  <rect x="590" y="368" width="290" height="172" rx="14" fill="#FCEBEB" stroke="#A32D2D" stroke-width="1.5" style="cursor:pointer" onclick="absNodeClick('safety')"/>
+  
+  <rect x="610" y="384" width="52" height="17" rx="8" fill="#A32D2D" pointer-events="none"/>
+  <text x="636" y="396" font-family="DM Sans,sans-serif" font-size="9" fill="white" text-anchor="middle" dominant-baseline="central" pointer-events="none">1 SOP</text>
+  <text x="610" y="432" font-family="DM Serif Display,serif" font-size="17" fill="#501313" pointer-events="none">Safety &amp; Compliance</text>
+  <text x="610" y="452" font-family="DM Sans,sans-serif" font-size="10" fill="#A32D2D" pointer-events="none">JSEAsy · accessed via browser on site</text>
+  <text x="610" y="470" font-family="DM Sans,sans-serif" font-size="10" fill="#A32D2D" opacity="0.65" pointer-events="none">Complete JSEA before every field job</text>
+  <circle cx="610" cy="510" r="8" fill="#A32D2D" style="cursor:pointer" onclick="event.stopPropagation();absDotOpen('safety',0)"><title>Completing a JSEA — JSEAsy</title></circle>
+  <text x="610" y="513" font-family="DM Sans,sans-serif" font-size="10" fill="white" text-anchor="middle" pointer-events="none">1</text>
+
+</svg>
+
+      <!-- HTML tooltip -->
+      <div id="mapTip" style="display:none;position:absolute;background:#1A1A18;color:white;font-size:11px;font-family:'DM Sans',sans-serif;padding:8px 13px;border-radius:8px;pointer-events:none;max-width:260px;line-height:1.5;z-index:20">
+        <div id="mapTipName" style="font-weight:500;margin-bottom:2px"></div>
+        <div style="font-size:10px;color:#9A9890">Click to open procedure →</div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+<!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sb-head">
+      <div class="sb-crumb">
+        <span class="sb-crumb-cat" id="sbCat"></span>
+        <span class="sb-crumb-sep">›</span>
+        <span class="sb-crumb-sep" id="sbPos"></span>
+        <button class="sb-close" onclick="closeSidebar()">✕</button>
+      </div>
+      <div class="sb-head-row">
+        <div class="sb-title" id="sbTitle"></div>
+      </div>
+      <div class="sb-tools" id="sbTools"></div>
+    </div>
+
+    <div class="sb-nav">
+      <button class="sb-nav-btn" id="prevBtn" onclick="navSOP(-1)">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7 2L3 6l4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Previous
+      </button>
+      <div class="sb-nav-divider"></div>
+      <span class="sb-nav-pos" id="sbNavPos"></span>
+      <div class="sb-nav-divider"></div>
+      <button class="sb-nav-btn" id="nextBtn" onclick="navSOP(1)">
+        Next
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M5 2l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+    <div class="sb-body">
+      <div id="sbEmbedWrap" style="margin-bottom:16px">
+        <!-- Has embed -->
+        <div id="sbHasEmbed" style="display:none">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button id="sbOpenBtn" onclick="openEmbedModal()" style="width:100%;display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--ink);border:none;border-radius:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.18s;text-align:left" onmouseover="this.style.background='#2a2a26'" onmouseout="this.style.background='var(--ink)'">
+              <div style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><polygon points="6 3 20 12 6 21 6 3" fill="white"/></svg>
+              </div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:500;color:white;margin-bottom:2px">Open step-by-step guide</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.45)">Interactive Scribehow slideshow</div>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+            </button>
+            <button onclick="openEmbedFullscreenDirect()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;background:transparent;border:1px solid var(--border);border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--ink3);transition:all 0.15s" onmouseover="this.style.background='var(--bg)';this.style.color='var(--ink)'" onmouseout="this.style.background='transparent';this.style.color='var(--ink3)'">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5V3h2M11 3h2v2M13 11v2h-2M5 13H3v-2"/></svg>
+              Open fullscreen
+            </button>
+          </div>
+        </div>
+        <!-- No embed yet -->
+        <div id="sbNoEmbed" style="display:none;padding:20px;background:var(--bg);border:1px solid var(--border);border-radius:12px;text-align:center">
+          <div style="font-size:12px;color:var(--ink3);line-height:1.6">Step-by-step guide coming soon</div>
+        </div>
+        <!-- Hidden iframe store (not displayed) -->
+        <iframe id="sbFrame" src="" allow="fullscreen" style="display:none;width:0;height:0"></iframe>
+      </div>
+
+      <div class="sb-desc">
+        <div class="sb-desc-label">What this covers</div>
+        <div class="sb-desc-text" id="sbDesc"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DESCS={
+  'Contractor invoice processing & status update':'How to receive, process and update the payment status of contractor invoices in Simpro — from initial receipt through to approval and tracking.',
+  'Invoicing a completed work order':'Step-by-step process for generating a client invoice once a work order is marked complete in Simpro, including line item review and sending.',
+  'Adding an approval comment to a contractor invoice':'How to open a contractor invoice in Foxit PDF Editor, review line items, and add a formal approval comment before filing.',
+  'Processing & filing a Bunnings invoice':'How to receive a Bunnings invoice via Outlook, annotate and approve using Foxit PDF, then file correctly against the job in Simpro.',
+  'Creating a Bunnings purchase order for job stock':'How to raise a purchase order in Simpro for materials required from Bunnings, linked to a specific job and cost code.',
+  'Processing overhead invoices from email':'How to locate overhead invoices received in Outlook, save to the correct OneDrive folder, and process through the approval workflow.',
+  'Completing a tender returnable schedule':'How to correctly complete and submit a tender returnable schedule document using Foxit PDF Editor, including required fields and submission steps.',
+  'Accessing demolition project files for Kineticon Group':'How to log in and navigate to demolition project files within Cubit X64 for Kineticon Group projects.',
+  'Navigating & accessing project PDF documents':'How to locate, open and navigate project PDF documents within Cubit X64 for review or estimation purposes.',
+  'Updating job notes & documentation in Simpro':'How to correctly update job notes, attach supporting documents and maintain accurate progress records against active jobs in Simpro.',
+  'Managing job documentation & progress tracking':'How to manage job-related emails, attachments and status updates across Outlook, Foxit and Word to keep project records accurate and complete.',
+  'Exporting & organising job attachments from Simpro':'How to export job-related attachments from Simpro and organise them into the correct folder structure in OneDrive.',
+  'Managing project quotes & documents in Kineticon':'How to locate, manage and update project quotes and associated documents within the Kineticon system, including version control.',
+  'Processing & quoting a client support ticket':'How to receive a client support request via Outlook, assess the scope of work and generate a quote for approval.',
+  'Completing a JSEA — JSEAsy':'How to complete a Job Safety and Environmental Analysis using JSEAsy before commencing any site work. Required for every field job without exception.'
+};
+
+const EMBEDS={
+  'Adding an approval comment to a contractor invoice':{url:'https://scribehow.com/embed/Adding_an_Approval_Comment_to_a_Contractor_Invoice__Foxit_PDF_Editor__BNIc5yUPTz-Cl2Fsqviwtw',desc:'Step-by-step process for opening a contractor invoice in Foxit PDF Editor, adding the approval comment, saving the file, and filing it correctly in OneDrive. Used as part of the contractor invoice processing workflow.'},
+  'Invoicing a completed work order':{url:'https://scribehow.com/embed/Invoicing_a_Completed_Work_Order__Simpro__rssKZdH4RYOMuUhpJwpzhw',desc:'Step-by-step process for creating and finalising a contractor invoice against a completed work order in Simpro. Covers locating the job, creating the invoice, attaching documentation, and filing in OneDrive.'},
+  'Contractor invoice processing &amp; status update':{url:'https://scribehow.com/embed/Contractor_Invoice_Processing_and_Status_Update__Simpro__f7eK3rRgRu-oKDxmEZ_x4w',desc:'Step-by-step guide for processing contractor invoices in Simpro. Covers locating the work order, verifying invoice details, attaching documentation, and updating job status through to For Review.'},
+  'Processing overhead invoices from email':{url:'https://scribehow.com/embed/Processing_Overhead_Invoices_from_Email__Outlook_and_OneDrive__7ZTtARMpRmOloyJeNl_g5Q',desc:'Step-by-step process for receiving an overhead invoice via email, opening and reviewing the attachment, saving it to the correct OneDrive folder, and archiving the email. Used for overhead costs such as Simpro subscriptions, office supplies, and similar expenses. Janelle in bookkeeping has access to this folder for Xero reconciliation.'},
+  'Processing &amp; quoting a client support ticket':{url:'https://scribehow.com/embed/Processing_and_Quoting_a_Client_Support_Ticket__Outlook_and_Simpro__0dt4rNgITO2a02KYYJmfzg',desc:'Step-by-step process for receiving a client service request via SupportU Hub email, creating a quote in Simpro, assigning the correct cost centre, renaming and attaching documentation, and forwarding the job to the relevant project manager. Kineticon policy is a 7-day turnaround on quotes when no deadline is specified by the client.'},
+  'Processing &amp; filing a Bunnings invoice':{url:'https://scribehow.com/embed/Processing_and_Filing_a_Bunnings_Invoice__Outlook_Foxit_and_Simpro__OxsYHy4-TaCMqEWdVL-C8g',desc:'Step-by-step process for receiving a Bunnings invoice via email, adding the approval comment in Foxit PDF Editor, locating the corresponding job in Simpro, verifying contractor details and payment terms, saving the file to the correct OneDrive folder, and marking the email as read. Bunnings invoices do not require project manager approval and go directly to Entered, Receipted in OneDrive.'},
+  'Creating a Bunnings purchase order for job stock':{url:'https://scribehow.com/embed/Creating_a_Bunnings_Purchase_Order_for_Job_Stock__Simpro_and_Foxit__JLcuC4R1ROCV_P_3VN7rNQ',desc:'Step-by-step process for creating a purchase order in Simpro for Bunnings stock items purchased for a job. Covers locating the job, creating the order, importing item details from the Bunnings invoice, attaching documentation, and filing correctly in OneDrive. Bunnings invoices do not require project manager approval and are filed directly to Entered, Receipted in OneDrive.'},
+  'Exporting &amp; organising job attachments from Simpro':{url:'https://scribehow.com/embed/Exporting_and_Organising_Job_Attachments_from_Simpro__N7HFVPc2RbCqnhO2LzT-ew',desc:'Step-by-step process for downloading a job attachments ZIP file from Simpro, extracting the files, and moving them into the correct working folder structure in OneDrive. Used when a job is complete and all documentation needs to be consolidated and filed correctly.'},
+  'Completing a JSEA':{url:'https://scribehow.com/embed/Completing_a_Job_Safety_and_Environmental_Analysis_JSEA__JSEAsy__oQklxy8QQm-KsQeD6UFmxg',desc:'Step-by-step process for logging into JSEAsy, locating the correct JSEA template, completing the risk assessment and safety checklist sections, and generating the final PDF document. JSEAsy is used by the operations team to complete mandatory safety documentation for all jobs. Note: Simpro does not support WiFi in the field — JSEAsy is accessed via browser on site.'},
+  'Updating job notes &amp; documentation in Simpro':{url:'https://scribehow.com/embed/Updating_Job_Notes_and_Documentation_in_Simpro__Z1WSxPjeR-GVm4O_keAOQw',desc:'Process for updating a completed job record in Simpro with accurate site notes, attendance details, and confirming all supporting documentation is in order before invoicing. Completed by the project manager or supervisor after returning from site.'},
+  'Completing a tender returnable schedule':{url:'https://scribehow.com/embed/Completing_a_Tender_Returnable_Schedule__Foxit_PDF_Editor__jshxeIv1T7OPbIwsuL3zuQ',desc:'Step-by-step process for opening and completing a tender returnable schedule in Foxit PDF Editor. Covers filling in Kineticon\'s corporate identification, compliance declarations, and authorised representative sign-off. Used for both open and invited tenders sourced through Tenders WA and Tenderlink. File naming convention: Quote Number, Site, Description of Works. If unsure of who to assign, select Dean — he will reallocate.'},
+  'Managing job documentation & progress tracking':{url:'https://scribehow.com/embed/Managing_Job_Documentation_and_Progress_Tracking__pfVMMNrFQNayMOVDPHa_1w',desc:'This procedure outlines the key steps for accessing, updating, and finalising jobs within the Kineticon system. Covers how to locate job information, manage emails and attachments, update job statuses, and document progress to ensure all project records are accurate, complete, and easy to track.'},
+  'Accessing demolition project files for Kineticon Group':{url:'https://scribehow.com/embed/Accessing_Demolition_Project_Files_for_Kineticon_Group__VFOKe3K7Rzm8Hcagd28Qjg',desc:'This procedure outlines how to locate and access demolition-related project files for roller shutter installations. Covers navigating between estimating software and quoting systems to ensure the correct project, pricing, and documentation are used before finalising quotes. Completed prior to quote submission to ensure all calculations align across Cubit, simPRO, and company pricing.'},
+  'Navigating & accessing project PDF documents':{url:'https://scribehow.com/embed/Navigating_and_Accessing_Project_PDF_Documents__91enQ8cURxSOil4c875Rjw',desc:'This procedure outlines how to locate and access key project documents, including Scope of Works and drawing PDFs, within the project directory. Ensures the correct files are opened and reviewed before completing measurements or entering data into estimating and quoting systems.'},
+  'Managing project quotes & documents in Kineticon':{url:'https://scribehow.com/embed/Managing_Project_Quotes_and_Documents_in_Kineticon__mVJIvjh0R_WuAOxerxG-Rw',desc:'This procedure outlines how to locate, filter, and manage project quotes within simPRO, as well as retrieve associated documents from both the system and file directories. Ensures users can efficiently access job details, update quotes, and locate supporting documentation such as purchase orders and emails.'},
+};
+
+const CAT_LABELS={
+  invoicing:'Invoicing & Finance',procurement:'Procurement & Purchasing',
+  tendering:'Tendering & Estimating',jobmgmt:'Job Management',
+  client:'Client & Support',safety:'Safety & Compliance'
+};
+
+let activeTool='all', activeCard=null, catCards={};
+
+document.querySelectorAll('.sop-card').forEach(card=>{
+  const cat=card.dataset.cat;
+  if(!catCards[cat])catCards[cat]=[];
+  catCards[cat].push(card);
+});
+
+function filterTool(btn,tool){
+  document.querySelectorAll('.ftag').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  activeTool=tool;
+  filterAll();
+}
+
+function filterAll(){
+  const q=document.getElementById('searchInput').value.toLowerCase().trim();
+  document.querySelectorAll('.sop-card').forEach(card=>{
+    const name=card.querySelector('.sop-card-name').textContent.toLowerCase();
+    const tools=card.dataset.tools||'';
+    const matchTool=activeTool==='all'||tools.includes(activeTool);
+    const matchSearch=!q||name.includes(q);
+    card.classList.toggle('hidden',!(matchTool&&matchSearch));
+  });
+  document.querySelectorAll('.cat-block').forEach(block=>{
+    const vis=block.querySelectorAll('.sop-card:not(.hidden)').length>0;
+    block.classList.toggle('faded',!vis);
+  });
+  if(activeCard&&activeCard.classList.contains('hidden'))closeSidebar();
+}
+
+function openSOP(card){
+  if(activeCard)activeCard.classList.remove('active');
+  activeCard=card;
+  card.classList.add('active');
+
+  const cat=card.dataset.cat;
+  const rawName=card.querySelector('.sop-card-name').textContent;
+  const tools=card.querySelectorAll('.tool-chip');
+  const colorM=card.dataset.color;
+  const colorL=card.dataset.colorL;
+
+  const sbCat=document.getElementById('sbCat');
+  sbCat.textContent=CAT_LABELS[cat]||cat;
+  sbCat.style.background=colorL;
+  sbCat.style.color=colorM;
+
+  document.getElementById('sbTitle').textContent=rawName;
+  document.getElementById('sbDesc').textContent=DESCS[rawName]||'Procedure description coming soon.';
+  // pdf removed
+  // sbEmbedTitle removed
+
+  const toolsEl=document.getElementById('sbTools');
+  toolsEl.innerHTML='';
+  tools.forEach(t=>{
+    const span=document.createElement('span');
+    span.className='tool-chip';
+    span.textContent=t.textContent;
+    toolsEl.appendChild(span);
+  });
+
+  const cards=catCards[cat]||[];
+  const visCards=cards.filter(c=>!c.classList.contains('hidden'));
+  const idx=visCards.indexOf(card);
+  const total=visCards.length;
+  document.getElementById('sbNavPos').textContent=(idx+1)+' of '+total;
+  document.getElementById('sbPos').textContent='Procedure '+(idx+1);
+  document.getElementById('prevBtn').disabled=idx<=0;
+  document.getElementById('nextBtn').disabled=idx>=total-1;
+
+  // Find embed by matching SOP name
+  var cleanName = rawName.replace(/&amp;/g,'&').replace(/&/g,'&amp;').toLowerCase().trim();
+  var embedData = null;
+  Object.keys(EMBEDS).forEach(function(k){
+    if(rawName.toLowerCase().indexOf(k.toLowerCase().replace(/&amp;/g,'&'))>=0 ||
+       k.toLowerCase().replace(/&amp;/g,'&').indexOf(rawName.toLowerCase().replace(/&amp;/g,'&').substring(0,20))>=0){
+      embedData = EMBEDS[k];
+    }
+  });
+  // Also try direct match
+  if(!embedData){
+    var nameKey = rawName.replace(/&amp;/g,'&').toLowerCase();
+    Object.keys(EMBEDS).forEach(function(k){
+      var kClean = k.replace(/&amp;/g,'&').toLowerCase();
+      if(nameKey.includes(kClean.substring(0,15)) || kClean.includes(nameKey.substring(0,15))){
+        embedData = EMBEDS[k];
+      }
+    });
+  }
+
+  const frame=document.getElementById('sbFrame');
+  const hasEmbed=document.getElementById('sbHasEmbed');
+  const noEmbed=document.getElementById('sbNoEmbed');
+  if(embedData && embedData.url){
+    frame.src=embedData.url;
+    hasEmbed.style.display='block';
+    noEmbed.style.display='none';
+    if(embedData.desc) document.getElementById('sbDesc').textContent=embedData.desc;
+  }else{
+    frame.src='';
+    hasEmbed.style.display='none';
+    noEmbed.style.display='block';
+  }
+
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('mapArea').classList.add('shifted');
+}
+
+function navSOP(dir){
+  if(!activeCard)return;
+  const cat=activeCard.dataset.cat;
+  const cards=(catCards[cat]||[]).filter(c=>!c.classList.contains('hidden'));
+  const idx=cards.indexOf(activeCard);
+  const next=cards[idx+dir];
+  if(next)openSOP(next);
+}
+
+function closeSidebar(){
+  if(activeCard)activeCard.classList.remove('active');
+  activeCard=null;
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('mapArea').classList.remove('shifted');
+  document.getElementById('sbFrame').src='';
+}
+
+
+
+function expandEmbedFullscreen(){
+  var src = document.getElementById('emFrame').src;
+  var title = document.getElementById('emTitle').textContent;
+  if(!src) return;
+  document.getElementById('fsFrame').src = src;
+  document.getElementById('fsTitle').textContent = title;
+  document.getElementById('fsOverlay').classList.add('open');
+}
+
+function openEmbedFullscreenDirect(){
+  var src = document.getElementById('sbFrame').src;
+  var title = document.getElementById('sbTitle').textContent;
+  if(!src){alert('No guide loaded yet — open a SOP first.');return;}
+  document.getElementById('fsFrame').src = src;
+  document.getElementById('fsTitle').textContent = title;
+  document.getElementById('fsOverlay').classList.add('open');
+}
+
+function openEmbedModal(){
+  if(!activeCard) return;
+  var title = document.getElementById('sbTitle').textContent;
+  var cat = document.getElementById('sbCat').textContent;
+  var catStyle = document.getElementById('sbCat').style;
+  var src = document.getElementById('sbFrame').src;
+  if(!src) return;
+  document.getElementById('emTitle').textContent = title;
+  var emCat = document.getElementById('emCat');
+  emCat.textContent = cat;
+  emCat.style.background = catStyle.background;
+  emCat.style.color = catStyle.color;
+  emCat.style.borderColor = catStyle.color;
+  document.getElementById('emFrame').src = src;
+  document.getElementById('embedModal').classList.add('open');
+}
+
+function closeEmbedModal(){
+  document.getElementById('embedModal').classList.remove('open');
+  document.getElementById('emFrame').src='';
+}
+
+function openFull(){
+  const src=document.getElementById('sbFrame').src;
+  const title=document.getElementById('sbTitle').textContent;
+  if(!src)return;
+  document.getElementById('fsFrame').src=src;
+  document.getElementById('fsTitle').textContent=title;
+  document.getElementById('fsOverlay').classList.add('open');
+}
+
+function closeFull(){
+  document.getElementById('fsOverlay').classList.remove('open');
+  document.getElementById('fsFrame').src='';
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if(document.getElementById('fsOverlay').classList.contains('open'))closeFull();
+    else closeSidebar();
+  }
+  if(e.key==='ArrowDown'&&activeCard)navSOP(1);
+  if(e.key==='ArrowUp'&&activeCard)navSOP(-1);
+});
+
+function setView(v){
+  var ma = document.getElementById('mapArea');
+  var abs = document.getElementById('abstractView');
+  document.getElementById('mapView').style.display = v==='list' ? 'block' : 'none';
+  document.getElementById('listToggle').classList.toggle('active', v==='list');
+  document.getElementById('mapToggle').classList.toggle('active', v==='map');
+  if(v==='map'){
+    abs.style.display = 'flex';
+    abs.style.position = 'fixed';
+    abs.style.top = '52px';
+    abs.style.left = '0';
+    abs.style.right = '0';
+    abs.style.bottom = '0';
+    abs.style.zIndex = '30';
+    abs.style.background = 'var(--bg)';
+    ma.style.marginRight = '0';
+    ma.classList.remove('shifted');
+  } else {
+    abs.style.display = 'none';
+    abs.style.position = '';
+    abs.style.top = '';
+    abs.style.left = '';
+    abs.style.right = '';
+    abs.style.bottom = '';
+    abs.style.zIndex = '';
+    abs.style.background = '';
+  }
+}
+
+function absNodeClick(cat){
+  const cards=(catCards[cat]||[]).filter(c=>!c.classList.contains('hidden'));
+  if(cards[0]){openSOP(cards[0]);document.getElementById('sidebar').classList.add('open');document.getElementById('mapArea').classList.add('shifted')}
+}
+
+function absDotOpen(cat,idx){
+  const cards=(catCards[cat]||[]).filter(c=>!c.classList.contains('hidden'));
+  if(cards[idx]){openSOP(cards[idx]);document.getElementById('sidebar').classList.add('open');document.getElementById('mapArea').classList.add('shifted')}
+}
+
+
+// Map tooltip
+document.querySelectorAll && (function(){
+  var tip = document.getElementById('mapTip');
+  var tipName = document.getElementById('mapTipName');
+  var canvas = document.getElementById('mapCanvas');
+  if(!tip||!canvas||!tipName) return;
+  document.querySelectorAll('#absSvg circle').forEach(function(c){
+    c.addEventListener('mouseenter', function(e){
+      var t = c.querySelector('title');
+      if(!t) return;
+      tipName.textContent = t.textContent;
+      tip.style.display = 'block';
+    });
+    c.addEventListener('mousemove', function(e){
+      var r = canvas.getBoundingClientRect();
+      var x = e.clientX - r.left + 14;
+      var y = e.clientY - r.top - 44;
+      if(x + 260 > r.width) x = e.clientX - r.left - 274;
+      if(y < 0) y = e.clientY - r.top + 14;
+      tip.style.left = x + 'px';
+      tip.style.top = y + 'px';
+    });
+    c.addEventListener('mouseleave', function(){
+      tip.style.display = 'none';
+    });
+  });
+})();
+
+</script>
+</body>
+</html>
