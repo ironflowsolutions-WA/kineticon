@@ -207,7 +207,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);disp
   <div class="tb-count">15 procedures</div>
   <div class="tb-search">
     <svg class="tb-search-icon" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#9A9890" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M10 10l3 3"/></svg>
-    <input type="text" id="searchInput" placeholder="Search procedures..." oninput="filterAll()"/>
+    <input type="text" id="searchInput" placeholder="Search procedures..." oninput="filterAll()" onkeydown="if(event.key==='Escape'){clearSearch();event.stopPropagation()}"/><button id="searchClear" onclick="clearSearch()" style="display:none;position:absolute;right:9px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:var(--ink3);cursor:pointer;font-size:14px;line-height:1;padding:2px">✕</button>
   </div>
 
   <div class="view-toggle">
@@ -811,6 +811,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);disp
 </div>
 
 <script>
+// ── DATA ──
+const CAT_LABELS={
+  invoicing:'Invoicing & Finance',
+  procurement:'Procurement & Purchasing',
+  tendering:'Tendering & Estimating',
+  jobmgmt:'Job Management',
+  client:'Client & Support',
+  safety:'Safety & Compliance'
+};
+
 const DESCS={
   'Contractor invoice processing & status update':'How to receive, process and update the payment status of contractor invoices in Simpro — from initial receipt through to approval and tracking.',
   'Invoicing a completed work order':'Step-by-step process for generating a client invoice once a work order is marked complete in Simpro, including line item review and sending.',
@@ -847,12 +857,7 @@ const EMBEDS={
   'Managing project quotes & documents in Kineticon':{url:'https://scribehow.com/embed/Managing_Project_Quotes_and_Documents_in_Kineticon__mVJIvjh0R_WuAOxerxG-Rw',desc:'This procedure outlines how to locate, filter, and manage project quotes within simPRO, as well as retrieve associated documents from both the system and file directories. Ensures users can efficiently access job details, update quotes, and locate supporting documentation such as purchase orders and emails.'},
 };
 
-const CAT_LABELS={
-  invoicing:'Invoicing & Finance',procurement:'Procurement & Purchasing',
-  tendering:'Tendering & Estimating',jobmgmt:'Job Management',
-  client:'Client & Support',safety:'Safety & Compliance'
-};
-
+// ── STATE ──
 let activeTool='all', activeCard=null, catCards={};
 
 document.querySelectorAll('.sop-card').forEach(card=>{
@@ -861,15 +866,23 @@ document.querySelectorAll('.sop-card').forEach(card=>{
   catCards[cat].push(card);
 });
 
-function filterTool(btn,tool){
-  document.querySelectorAll('.ftag').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  activeTool=tool;
+// ── SEARCH & FILTER ──
+function clearSearch(){
+  document.getElementById('searchInput').value='';
+  document.getElementById('searchClear').style.display='none';
   filterAll();
 }
 
 function filterAll(){
   const q=document.getElementById('searchInput').value.toLowerCase().trim();
+  const clearBtn=document.getElementById('searchClear');
+  if(clearBtn) clearBtn.style.display = q ? 'block' : 'none';
+
+  // If searching and in map view, switch to pipeline so results are visible
+  if(q && document.getElementById('abstractView').style.display==='flex'){
+    setView('list');
+  }
+
   document.querySelectorAll('.sop-card').forEach(card=>{
     const name=card.querySelector('.sop-card-name').textContent.toLowerCase();
     const tools=card.dataset.tools||'';
@@ -881,11 +894,66 @@ function filterAll(){
     const vis=block.querySelectorAll('.sop-card:not(.hidden)').length>0;
     block.classList.toggle('faded',!vis);
   });
-  if(activeCard&&activeCard.classList.contains('hidden'))closeSidebar();
+  // If active SOP is now hidden, close sidebar
+  if(activeCard && activeCard.classList.contains('hidden')) closeSidebar();
 }
 
+function filterTool(btn, tool){
+  document.querySelectorAll('.ftag').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  activeTool=tool;
+  filterAll();
+}
+
+// ── VIEW SWITCHING ──
+function setView(v){
+  const ma=document.getElementById('mapArea');
+  const abs=document.getElementById('abstractView');
+  document.getElementById('mapView').style.display = v==='list' ? 'block' : 'none';
+  document.getElementById('listToggle').classList.toggle('active', v==='list');
+  document.getElementById('mapToggle').classList.toggle('active', v==='map');
+  if(v==='map'){
+    // Close sidebar cleanly before showing map
+    if(activeCard){
+      activeCard.classList.remove('active');
+      activeCard=null;
+    }
+    document.getElementById('sidebar').classList.remove('open');
+    ma.classList.remove('shifted');
+    ma.style.marginRight='0';
+    // Close any open modals
+    closeEmbedModal();
+    abs.style.display='flex';
+    abs.style.position='fixed';
+    abs.style.top='52px';
+    abs.style.left='0';
+    abs.style.right='0';
+    abs.style.bottom='0';
+    abs.style.zIndex='30';
+    abs.style.background='var(--bg)';
+  } else {
+    abs.style.display='none';
+    abs.style.position='';
+    abs.style.top='';
+    abs.style.left='';
+    abs.style.right='';
+    abs.style.bottom='';
+    abs.style.zIndex='';
+    abs.style.background='';
+    ma.style.marginRight='';
+  }
+}
+
+// ── SOP OPEN ──
 function openSOP(card){
-  if(activeCard)activeCard.classList.remove('active');
+  if(!card) return;
+
+  // If in map view, switch to pipeline first
+  if(document.getElementById('abstractView').style.display==='flex'){
+    setView('list');
+  }
+
+  if(activeCard) activeCard.classList.remove('active');
   activeCard=card;
   card.classList.add('active');
 
@@ -895,16 +963,17 @@ function openSOP(card){
   const colorM=card.dataset.color;
   const colorL=card.dataset.colorL;
 
+  // Category breadcrumb
   const sbCat=document.getElementById('sbCat');
   sbCat.textContent=CAT_LABELS[cat]||cat;
   sbCat.style.background=colorL;
   sbCat.style.color=colorM;
 
+  // Title & description
   document.getElementById('sbTitle').textContent=rawName;
   document.getElementById('sbDesc').textContent=DESCS[rawName]||'Procedure description coming soon.';
-  // pdf removed
-  // sbEmbedTitle removed
 
+  // Tools
   const toolsEl=document.getElementById('sbTools');
   toolsEl.innerHTML='';
   tools.forEach(t=>{
@@ -914,6 +983,7 @@ function openSOP(card){
     toolsEl.appendChild(span);
   });
 
+  // Prev/next nav within category
   const cards=catCards[cat]||[];
   const visCards=cards.filter(c=>!c.classList.contains('hidden'));
   const idx=visCards.indexOf(card);
@@ -923,25 +993,15 @@ function openSOP(card){
   document.getElementById('prevBtn').disabled=idx<=0;
   document.getElementById('nextBtn').disabled=idx>=total-1;
 
-  // Find embed by matching SOP name
-  var cleanName = rawName.replace(/&amp;/g,'&').replace(/&/g,'&amp;').toLowerCase().trim();
-  var embedData = null;
+  // Embed matching
+  var embedData=null;
+  var nameKey=rawName.toLowerCase().replace(/&amp;/g,'&').trim();
   Object.keys(EMBEDS).forEach(function(k){
-    if(rawName.toLowerCase().indexOf(k.toLowerCase().replace(/&amp;/g,'&'))>=0 ||
-       k.toLowerCase().replace(/&amp;/g,'&').indexOf(rawName.toLowerCase().replace(/&amp;/g,'&').substring(0,20))>=0){
-      embedData = EMBEDS[k];
+    var kClean=k.toLowerCase().replace(/&amp;/g,'&').trim();
+    if(nameKey.includes(kClean.substring(0,18)) || kClean.includes(nameKey.substring(0,18))){
+      embedData=EMBEDS[k];
     }
   });
-  // Also try direct match
-  if(!embedData){
-    var nameKey = rawName.replace(/&amp;/g,'&').toLowerCase();
-    Object.keys(EMBEDS).forEach(function(k){
-      var kClean = k.replace(/&amp;/g,'&').toLowerCase();
-      if(nameKey.includes(kClean.substring(0,15)) || kClean.includes(nameKey.substring(0,15))){
-        embedData = EMBEDS[k];
-      }
-    });
-  }
 
   const frame=document.getElementById('sbFrame');
   const hasEmbed=document.getElementById('sbHasEmbed');
@@ -951,82 +1011,97 @@ function openSOP(card){
     hasEmbed.style.display='block';
     noEmbed.style.display='none';
     if(embedData.desc) document.getElementById('sbDesc').textContent=embedData.desc;
-  }else{
+  } else {
     frame.src='';
     hasEmbed.style.display='none';
     noEmbed.style.display='block';
   }
 
+  // Open sidebar
   document.getElementById('sidebar').classList.add('open');
   document.getElementById('mapArea').classList.add('shifted');
+
+  // Scroll card into view
+  setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'nearest'}), 100);
 }
 
+// ── SIDEBAR NAV ──
 function navSOP(dir){
-  if(!activeCard)return;
+  if(!activeCard) return;
   const cat=activeCard.dataset.cat;
   const cards=(catCards[cat]||[]).filter(c=>!c.classList.contains('hidden'));
   const idx=cards.indexOf(activeCard);
   const next=cards[idx+dir];
-  if(next)openSOP(next);
+  if(next) openSOP(next);
 }
 
 function closeSidebar(){
-  if(activeCard)activeCard.classList.remove('active');
+  // Close modals first
+  closeEmbedModal();
+  if(activeCard) activeCard.classList.remove('active');
   activeCard=null;
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('mapArea').classList.remove('shifted');
   document.getElementById('sbFrame').src='';
 }
 
-
-
-function expandEmbedFullscreen(){
-  var src = document.getElementById('emFrame').src;
-  var title = document.getElementById('emTitle').textContent;
-  if(!src) return;
-  document.getElementById('fsFrame').src = src;
-  document.getElementById('fsTitle').textContent = title;
-  document.getElementById('fsOverlay').classList.add('open');
+// ── MAP INTERACTIONS ──
+function absNodeClick(cat){
+  const cards=(catCards[cat]||[]).filter(c=>!c.classList.contains('hidden'));
+  if(cards[0]) openSOP(cards[0]);
 }
 
-function openEmbedFullscreenDirect(){
-  var src = document.getElementById('sbFrame').src;
-  var title = document.getElementById('sbTitle').textContent;
-  if(!src){alert('No guide loaded yet — open a SOP first.');return;}
-  document.getElementById('fsFrame').src = src;
-  document.getElementById('fsTitle').textContent = title;
-  document.getElementById('fsOverlay').classList.add('open');
+function absDotOpen(cat,idx){
+  const cards=(catCards[cat]||[]).filter(c=>!c.classList.contains('hidden'));
+  if(cards[idx]) openSOP(cards[idx]);
 }
 
+// ── EMBED MODAL ──
 function openEmbedModal(){
   if(!activeCard) return;
-  var title = document.getElementById('sbTitle').textContent;
-  var cat = document.getElementById('sbCat').textContent;
-  var catStyle = document.getElementById('sbCat').style;
-  var src = document.getElementById('sbFrame').src;
+  const title=document.getElementById('sbTitle').textContent;
+  const cat=document.getElementById('sbCat');
+  const src=document.getElementById('sbFrame').src;
   if(!src) return;
-  document.getElementById('emTitle').textContent = title;
-  var emCat = document.getElementById('emCat');
-  emCat.textContent = cat;
-  emCat.style.background = catStyle.background;
-  emCat.style.color = catStyle.color;
-  emCat.style.borderColor = catStyle.color;
-  document.getElementById('emFrame').src = src;
+  document.getElementById('emTitle').textContent=title;
+  const emCat=document.getElementById('emCat');
+  emCat.textContent=cat.textContent;
+  emCat.style.background=cat.style.background;
+  emCat.style.color=cat.style.color;
+  emCat.style.borderColor=cat.style.color;
+  document.getElementById('emFrame').src=src;
   document.getElementById('embedModal').classList.add('open');
 }
 
 function closeEmbedModal(){
-  document.getElementById('embedModal').classList.remove('open');
+  const modal=document.getElementById('embedModal');
+  if(!modal) return;
+  modal.classList.remove('open');
   document.getElementById('emFrame').src='';
 }
 
-function openFull(){
-  const src=document.getElementById('sbFrame').src;
-  const title=document.getElementById('sbTitle').textContent;
-  if(!src)return;
+// ── FULLSCREEN ──
+function expandEmbedFullscreen(){
+  const src=document.getElementById('emFrame').src;
+  const title=document.getElementById('emTitle').textContent;
+  if(!src) return;
   document.getElementById('fsFrame').src=src;
   document.getElementById('fsTitle').textContent=title;
   document.getElementById('fsOverlay').classList.add('open');
+}
+
+function openEmbedFullscreenDirect(){
+  const src=document.getElementById('sbFrame').src;
+  const title=document.getElementById('sbTitle').textContent;
+  if(!src){return;}
+  document.getElementById('fsFrame').src=src;
+  document.getElementById('fsTitle').textContent=title;
+  document.getElementById('fsOverlay').classList.add('open');
+}
+
+function openFull(){
+  // Legacy — same as direct fullscreen
+  openEmbedFullscreenDirect();
 }
 
 function closeFull(){
@@ -1034,83 +1109,83 @@ function closeFull(){
   document.getElementById('fsFrame').src='';
 }
 
-document.addEventListener('keydown',e=>{
+// ── NAV ACTIVE STATE (pipeline scroll) ──
+const pills=document.querySelectorAll('.tbp');
+const secs=document.querySelectorAll('section[id]');
+const obs=new IntersectionObserver(e=>{
+  e.forEach(x=>{
+    if(x.isIntersecting){
+      pills.forEach(p=>p.classList.remove('active'));
+      const m=document.querySelector('.tbp[href="#'+x.target.id+'"]');
+      if(m) m.classList.add('active');
+    }
+  });
+},{threshold:0.3});
+secs.forEach(s=>obs.observe(s));
+
+// ── KEYBOARD SHORTCUTS ──
+document.addEventListener('keydown', e=>{
+  // Escape — layered dismissal (innermost first)
   if(e.key==='Escape'){
-    if(document.getElementById('fsOverlay').classList.contains('open'))closeFull();
-    else closeSidebar();
+    if(document.getElementById('fsOverlay').classList.contains('open')){
+      closeFull(); return;
+    }
+    if(document.getElementById('embedModal').classList.contains('open')){
+      closeEmbedModal(); return;
+    }
+    if(document.getElementById('sidebar').classList.contains('open')){
+      closeSidebar(); return;
+    }
+    // If in map view, go back to pipeline
+    if(document.getElementById('abstractView').style.display==='flex'){
+      setView('list'); return;
+    }
+    // Clear search if active
+    if(document.getElementById('searchInput').value){
+      clearSearch(); return;
+    }
   }
-  if(e.key==='ArrowDown'&&activeCard)navSOP(1);
-  if(e.key==='ArrowUp'&&activeCard)navSOP(-1);
+  // Arrow nav through SOPs (only when sidebar open, not typing in search)
+  if(e.target.tagName==='INPUT') return;
+  if(e.key==='ArrowDown' && activeCard){ e.preventDefault(); navSOP(1); }
+  if(e.key==='ArrowUp' && activeCard){ e.preventDefault(); navSOP(-1); }
 });
 
-function setView(v){
-  var ma = document.getElementById('mapArea');
-  var abs = document.getElementById('abstractView');
-  document.getElementById('mapView').style.display = v==='list' ? 'block' : 'none';
-  document.getElementById('listToggle').classList.toggle('active', v==='list');
-  document.getElementById('mapToggle').classList.toggle('active', v==='map');
-  if(v==='map'){
-    abs.style.display = 'flex';
-    abs.style.position = 'fixed';
-    abs.style.top = '52px';
-    abs.style.left = '0';
-    abs.style.right = '0';
-    abs.style.bottom = '0';
-    abs.style.zIndex = '30';
-    abs.style.background = 'var(--bg)';
-    ma.style.marginRight = '0';
-    ma.classList.remove('shifted');
-  } else {
-    abs.style.display = 'none';
-    abs.style.position = '';
-    abs.style.top = '';
-    abs.style.left = '';
-    abs.style.right = '';
-    abs.style.bottom = '';
-    abs.style.zIndex = '';
-    abs.style.background = '';
-  }
-}
+// ── BACKDROP CLICKS ──
+document.getElementById('embedModal').addEventListener('click', function(e){
+  if(e.target===this) closeEmbedModal();
+});
+document.getElementById('fsOverlay').addEventListener('click', function(e){
+  if(e.target===this) closeFull();
+});
 
-function absNodeClick(cat){
-  const cards=(catCards[cat]||[]).filter(c=>!c.classList.contains('hidden'));
-  if(cards[0]){openSOP(cards[0]);document.getElementById('sidebar').classList.add('open');document.getElementById('mapArea').classList.add('shifted')}
-}
-
-function absDotOpen(cat,idx){
-  const cards=(catCards[cat]||[]).filter(c=>!c.classList.contains('hidden'));
-  if(cards[idx]){openSOP(cards[idx]);document.getElementById('sidebar').classList.add('open');document.getElementById('mapArea').classList.add('shifted')}
-}
-
-
-// Map tooltip
+// ── MAP TOOLTIP ──
 document.querySelectorAll && (function(){
-  var tip = document.getElementById('mapTip');
-  var tipName = document.getElementById('mapTipName');
-  var canvas = document.getElementById('mapCanvas');
+  var tip=document.getElementById('mapTip');
+  var tipName=document.getElementById('mapTipName');
+  var canvas=document.getElementById('mapCanvas');
   if(!tip||!canvas||!tipName) return;
   document.querySelectorAll('#absSvg circle').forEach(function(c){
     c.addEventListener('mouseenter', function(e){
-      var t = c.querySelector('title');
+      var t=c.querySelector('title');
       if(!t) return;
-      tipName.textContent = t.textContent;
-      tip.style.display = 'block';
+      tipName.textContent=t.textContent;
+      tip.style.display='block';
     });
     c.addEventListener('mousemove', function(e){
-      var r = canvas.getBoundingClientRect();
-      var x = e.clientX - r.left + 14;
-      var y = e.clientY - r.top - 44;
-      if(x + 260 > r.width) x = e.clientX - r.left - 274;
-      if(y < 0) y = e.clientY - r.top + 14;
-      tip.style.left = x + 'px';
-      tip.style.top = y + 'px';
+      var r=canvas.getBoundingClientRect();
+      var x=e.clientX-r.left+14;
+      var y=e.clientY-r.top-44;
+      if(x+260>r.width) x=e.clientX-r.left-274;
+      if(y<0) y=e.clientY-r.top+14;
+      tip.style.left=x+'px';
+      tip.style.top=y+'px';
     });
     c.addEventListener('mouseleave', function(){
-      tip.style.display = 'none';
+      tip.style.display='none';
     });
   });
 })();
-
 </script>
 </body>
 </html>
