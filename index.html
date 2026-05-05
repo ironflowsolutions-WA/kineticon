@@ -193,6 +193,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);disp
   filter: drop-shadow(0 0 5px currentColor) drop-shadow(0 0 2px currentColor);
   transform: scale(1.35);
 }
+
+@media(max-width:768px){
+  :root{--sidebar-w:100vw}
+  .sidebar{width:100vw;top:52px}
+  .map-area.shifted{margin-right:0}
+  .topbar{padding:0 1rem;gap:8px}
+  .tb-count{display:none}
+  .tb-search input{width:140px}
+  .view-toggle{margin-left:8px}
+  .vt-btn{padding:4px 8px;font-size:10px}
+  .map-area{padding:20px 16px 40px}
+  .cat-head{padding:12px 14px}
+  .sop-card{padding:12px 14px 12px 40px}
+  .sb-body{padding:14px}
+  .embed-modal-box{width:100vw;height:100vh;border-radius:0;max-height:100vh}
+  .embed-modal-body iframe{min-height:300px}
+  #abstractView{padding:12px 14px 16px;gap:10px}
+}
+@media(max-width:480px){
+  .tb-search{display:none}
+  .tb-title{font-size:12px}
+}
 </style>
 </head>
 <body>
@@ -806,6 +828,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);disp
         <div class="sb-desc-label">What this covers</div>
         <div class="sb-desc-text" id="sbDesc"></div>
       </div>
+    
+      <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:10px;color:var(--ink3)">Last updated <strong style="color:var(--ink2)">May 2026</strong></div>
+        <div style="font-size:10px;color:var(--ink3)">Built by <strong style="color:var(--ink2)">Iron Flow Solutions</strong></div>
+      </div>
     </div>
   </div>
 </div>
@@ -947,11 +974,6 @@ function setView(v){
 // ── SOP OPEN ──
 function openSOP(card){
   if(!card) return;
-
-  // If in map view, switch to pipeline first
-  if(document.getElementById('abstractView').style.display==='flex'){
-    setView('list');
-  }
 
   if(activeCard) activeCard.classList.remove('active');
   activeCard=card;
